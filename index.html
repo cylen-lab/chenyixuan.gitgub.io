@@ -528,478 +528,189 @@
             observer.observe(el);
         });
     </script>
-<!-- Ecoshane Lex 聊天機器人 - 直接嵌入代碼 -->
-<style>
-/* 聊天機器人樣式 */
-.ecoshane-chatbot {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 9999;
-    font-family: 'Microsoft JhengHei', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-}
-
-.chat-toggle-btn {
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, #28a745, #20c997);
-    border-radius: 50%;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(40, 167, 69, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 24px;
-    transition: all 0.3s ease;
-    position: relative;
-}
-
-.chat-toggle-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(40, 167, 69, 0.6);
-}
-
-.chat-toggle-btn.active {
-    background: linear-gradient(135deg, #dc3545, #fd7e14);
-}
-
-.chat-window {
-    position: absolute;
-    bottom: 80px;
-    right: 0;
-    width: 350px;
-    height: 500px;
-    background: white;
-    border-radius: 15px;
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    animation: slideUp 0.3s ease-out;
-    border: 1px solid #e0e0e0;
-}
-
-.chat-window.active {
-    display: flex;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Lex V2 聊天機器人</title>
+  <style>
+    /* --- 基本樣式 --- */
+    body {
+      font-family: Arial, sans-serif;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
+    #chat-toggle {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
-}
-
-.chat-header {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.chat-avatar {
-    width: 40px;
-    height: 40px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-}
-
-.chat-info h4 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.chat-info p {
-    margin: 2px 0 0 0;
-    font-size: 12px;
-    opacity: 0.9;
-}
-
-.chat-messages {
-    flex: 1;
-    padding: 15px;
-    overflow-y: auto;
-    background: #f8f9fa;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.message {
-    max-width: 85%;
-    padding: 12px 16px;
-    border-radius: 18px;
-    font-size: 14px;
-    line-height: 1.4;
-    animation: fadeIn 0.4s ease-in;
-    word-wrap: break-word;
-}
-
-.message.bot {
-    background: white;
-    color: #333;
-    align-self: flex-start;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-bottom-left-radius: 4px;
-}
-
-.message.user {
-    background: linear-gradient(135deg, #28a745, #20c997);
-    color: white;
-    align-self: flex-end;
-    border-bottom-right-radius: 4px;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
+    #chat-window {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      height: 420px;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: white;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    #chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
     }
-}
-
-.chat-input {
-    padding: 15px;
-    background: white;
-    border-top: 1px solid #e9ecef;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-}
-
-.input-field {
-    flex: 1;
-    border: 2px solid #e9ecef;
-    border-radius: 25px;
-    padding: 12px 18px;
-    font-size: 14px;
-    outline: none;
-    resize: none;
-    max-height: 80px;
-    min-height: 44px;
-    font-family: inherit;
-    transition: border-color 0.3s;
-    background: #fff;
-}
-
-.input-field:focus {
-    border-color: #28a745;
-    box-shadow: 0 0 0 3px rgba(40, 167, 69, 0.1);
-}
-
-.send-btn {
-    width: 44px;
-    height: 44px;
-    background: #28a745;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
-    font-size: 16px;
-}
-
-.send-btn:hover {
-    background: #218838;
-    transform: scale(1.05);
-}
-
-.send-btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.typing-indicator {
-    display: none;
-    padding: 12px 16px;
-    background: white;
-    border-radius: 18px;
-    align-self: flex-start;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border-bottom-left-radius: 4px;
-}
-
-.typing-indicator.active {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-}
-
-.typing-dot {
-    width: 8px;
-    height: 8px;
-    background: #28a745;
-    border-radius: 50%;
-    animation: typing 1.4s infinite ease-in-out;
-}
-
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes typing {
-    0%, 60%, 100% { 
-        transform: translateY(0);
-        opacity: 0.4;
+    .message {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-radius: 8px;
+      max-width: 75%;
+      word-wrap: break-word;
     }
-    30% { 
-        transform: translateY(-10px);
-        opacity: 1;
+    .message.user {
+      background: #4caf50;
+      color: white;
+      align-self: flex-end;
     }
-}
-
-.notification-badge {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background: #dc3545;
-    color: white;
-    border-radius: 50%;
-    font-size: 12px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    animation: pulse 2s infinite;
-    border: 2px solid white;
-}
-
-.notification-badge.show {
-    display: flex;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-
-/* 響應式設計 */
-@media (max-width: 480px) {
-    .chat-window {
-        width: calc(100vw - 40px);
-        height: 70vh;
-        bottom: 80px;
-        right: 20px;
-        left: 20px;
+    .message.bot {
+      background: #f1f1f1;
+      color: black;
+      align-self: flex-start;
     }
-    
-    .ecoshane-chatbot {
-        right: 20px;
-        bottom: 20px;
+    .time {
+      font-size: 10px;
+      color: gray;
+      margin-top: 2px;
+      text-align: right;
     }
-}
+    #chat-input-container {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    #chat-input {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      outline: none;
+    }
+    #chat-send {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <!-- 聊天按鈕 -->
+  <button id="chat-toggle">🌱</button>
 
-/* 錯誤狀態 */
-.error-message {
-    background: #f8d7da !important;
-    color: #721c24 !important;
-    border: 1px solid #f5c6cb;
-}
-
-/* 連接狀態指示 */
-.connection-status {
-    padding: 8px 15px;
-    background: #d4edda;
-    color: #155724;
-    font-size: 12px;
-    text-align: center;
-    border-bottom: 1px solid #c3e6cb;
-}
-
-.connection-status.error {
-    background: #f8d7da;
-    color: #721c24;
-    border-bottom-color: #f5c6cb;
-}
-</style>
-
-<!-- 聊天機器人 HTML -->
-<div class="ecoshane-chatbot">
-    <!-- 通知徽章 -->
-    <div class="notification-badge" id="notificationBadge">1</div>
-    
-    <!-- 切換按鈕 -->
-    <button class="chat-toggle-btn" id="chatToggleBtn" title="Eco 智能助手">
-        <span id="chatIcon">🌱</span>
-    </button>
-    
-    <!-- 聊天窗口 -->
-    <div class="chat-window" id="chatWindow">
-        <!-- 頭部 -->
-        <div class="chat-header">
-            <div class="chat-avatar">🌱</div>
-            <div class="chat-info">
-                <h4>Eco 智能助手</h4>
-                <p>Ecoshane 永續顧問</p>
-            </div>
-        </div>
-        
-        <!-- 連接狀態 -->
-        <div class="connection-status" id="connectionStatus">
-            正在連接...
-        </div>
-        
-        <!-- 訊息區域 -->
-        <div class="chat-messages" id="chatMessages">
-            <div class="message bot">
-                您好！我是 Ecoshane 的 Eco 智能助手 🌿<br><br>
-                我可以協助您了解：<br>
-                • 企業永續發展服務<br>
-                • 碳足跡評估與減碳策略<br>
-                • ESG 報告與諮詢<br>
-                • 綠色轉型規劃<br><br>
-                有什麼可以幫助您的嗎？
-            </div>
-        </div>
-        
-        <!-- 打字指示器 -->
-        <div class="typing-indicator" id="typingIndicator">
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-            <div class="typing-dot"></div>
-        </div>
-        
-        <!-- 輸入區域 -->
-        <div class="chat-input">
-            <textarea 
-                class="input-field" 
-                id="messageInput" 
-                placeholder="請輸入您的問題..."
-                rows="1"
-                maxlength="1000"
-            ></textarea>
-            <button class="send-btn" id="sendBtn" title="發送訊息">
-                ➤
-            </button>
-        </div>
+  <!-- 聊天視窗 -->
+  <div id="chat-window">
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="輸入訊息..." />
+      <button id="chat-send">發送</button>
     </div>
-</div>
+  </div>
 
-<!-- AWS SDK -->
-<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1691.0.min.js"></script>
-<script>
-class LexChatbot {
-  constructor() {
-    this.initUI();
-    this.initAWS();
-  }
+  <!-- AWS SDK -->
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1691.0.min.js"></script>
+  <script>
+    class LexChatbot {
+      constructor() {
+        this.chatToggle = document.getElementById('chat-toggle');
+        this.chatWindow = document.getElementById('chat-window');
+        this.chatMessages = document.getElementById('chat-messages');
+        this.chatInput = document.getElementById('chat-input');
+        this.chatSend = document.getElementById('chat-send');
 
-  initUI() {
-    this.chatToggle = document.getElementById('chat-toggle');
-    this.chatWindow = document.getElementById('chat-window');
-    this.chatMessages = document.getElementById('chat-messages');
-    this.chatInput = document.getElementById('chat-input');
-    this.chatSend = document.getElementById('chat-send');
-    this.chatTyping = document.getElementById('chat-typing');
-    this.chatStatus = document.getElementById('chat-status');
-    this.chatNotification = document.getElementById('chat-notification');
-
-    this.chatToggle.addEventListener('click', () => this.toggleChat());
-    this.chatSend.addEventListener('click', () => this.sendMessage());
-    this.chatInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') this.sendMessage();
-    });
-  }
-
-  initAWS() {
-    AWS.config.region = 'ap-northeast-1'; // 你的 region
-    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換成你的
-    });
-
-    this.lexRuntime = new AWS.LexRuntimeV2();
-    this.botId = 'example';      // 你的 Bot ID
-    this.botAliasId = 'TestBotAlias'; // 你的 Bot Alias ID
-    this.localeId = 'en_US';          // 語言代碼，例如 zh_TW, en_US
-    this.sessionId = Date.now().toString();
-  }
-
-  toggleChat() {
-    const isHidden = this.chatWindow.classList.contains('hidden');
-    this.chatWindow.classList.toggle('hidden');
-    if (!isHidden) {
-      this.chatNotification.style.display = 'none';
-    }
-  }
-
-  async sendMessage() {
-    const text = this.chatInput.value.trim();
-    if (!text) return;
-
-    this.addMessage(text, 'user');
-    this.chatInput.value = '';
-    this.showTyping();
-
-    try {
-      const params = {
-        botId: this.botId,
-        botAliasId: this.botAliasId,
-        localeId: this.localeId,
-        sessionId: this.sessionId,
-        text: text
-      };
-
-      const response = await this.lexRuntime.recognizeText(params).promise();
-
-      if (response.messages && response.messages.length > 0) {
-        response.messages.forEach(msg => {
-          this.addMessage(msg.content, 'bot');
+        this.chatToggle.addEventListener('click', () => this.toggleChat());
+        this.chatSend.addEventListener('click', () => this.sendMessage());
+        this.chatInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') this.sendMessage();
         });
-      } else {
-        this.addMessage("抱歉，我沒有理解你的問題。", 'bot');
+
+        this.initAWS();
       }
-    } catch (err) {
-      console.error('Lex V2 Error:', err);
-      this.addMessage("系統暫時無法使用，請稍後再試或直接聯繫我們。", 'bot');
-    } finally {
-      this.hideTyping();
+
+      initAWS() {
+        AWS.config.region = 'ap-east-1'; // 你的 region
+        AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+          IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換掉這個
+        });
+
+        this.lexRuntime = new AWS.LexRuntimeV2();
+        this.botId = 'example';      // 換掉這個
+        this.botAliasId = 'TestBotAlias'; // 換掉這個
+        this.localeId = 'en_US';          // 語言
+        this.sessionId = Date.now().toString();
+      }
+
+      toggleChat() {
+        this.chatWindow.style.display =
+          this.chatWindow.style.display === 'none' ? 'flex' : 'none';
+      }
+
+      async sendMessage() {
+        const text = this.chatInput.value.trim();
+        if (!text) return;
+
+        this.addMessage(text, 'user');
+        this.chatInput.value = '';
+
+        try {
+          const params = {
+            botId: this.botId,
+            botAliasId: this.botAliasId,
+            localeId: this.localeId,
+            sessionId: this.sessionId,
+            text: text
+          };
+
+          const response = await this.lexRuntime.recognizeText(params).promise();
+
+          if (response.messages && response.messages.length > 0) {
+            response.messages.forEach(msg => {
+              this.addMessage(msg.content, 'bot');
+            });
+          } else {
+            this.addMessage("抱歉，我沒有理解你的問題。", 'bot');
+          }
+        } catch (err) {
+          console.error('Lex V2 Error:', err);
+          this.addMessage("系統暫時無法使用，請稍後再試或直接聯繫我們。", 'bot');
+        }
+      }
+
+      addMessage(text, type) {
+        const message = document.createElement('div');
+        message.className = `message ${type}`;
+        const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+        message.innerHTML = `<div>${text}</div><div class="time">${time}</div>`;
+        this.chatMessages.appendChild(message);
+        this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+      }
     }
-  }
 
-  addMessage(text, type) {
-    const message = document.createElement('div');
-    message.className = `message ${type}`;
-    const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-    message.innerHTML = `<span>${text}</span><div class="time">${time}</div>`;
-    this.chatMessages.appendChild(message);
-    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-  }
+    document.addEventListener('DOMContentLoaded', () => {
+      new LexChatbot();
+    });
+  </script>
+</body>
+</html>
 
-  showTyping() {
-    this.chatTyping.style.display = 'block';
-  }
-
-  hideTyping() {
-    this.chatTyping.style.display = 'none';
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  new LexChatbot();
-});
-</script>
 
 </body>
 </html>
