@@ -899,263 +899,107 @@
 
 <!-- AWS SDK -->
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1691.0.min.js"></script>
-
 <script>
-// Ecoshane Lex 聊天機器人類
-class EcoshaneLexChatbot {
-    constructor() {
-        // ⭐ 請在這裡設定你的 AWS Lex 機器人資訊
-        this.config = {
-            region: 'us-east-1',                    // 你的 AWS 區域
-            botName: 'example',               // 你的 Lex 機器人名稱
-            botAlias: 'TestBotAlias',             // 你的機器人別名 (通常是 '$LATEST')
-            identityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 你的 Cognito Identity Pool ID
-        };
-        
-        this.isOpen = false;
-        this.isTyping = false;
-        this.sessionId = `ecoshane-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
-        this.initElements();
-        this.bindEvents();
-        this.setupAWS();
+class LexChatbot {
+  constructor() {
+    this.initUI();
+    this.initAWS();
+  }
+
+  initUI() {
+    this.chatToggle = document.getElementById('chat-toggle');
+    this.chatWindow = document.getElementById('chat-window');
+    this.chatMessages = document.getElementById('chat-messages');
+    this.chatInput = document.getElementById('chat-input');
+    this.chatSend = document.getElementById('chat-send');
+    this.chatTyping = document.getElementById('chat-typing');
+    this.chatStatus = document.getElementById('chat-status');
+    this.chatNotification = document.getElementById('chat-notification');
+
+    this.chatToggle.addEventListener('click', () => this.toggleChat());
+    this.chatSend.addEventListener('click', () => this.sendMessage());
+    this.chatInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') this.sendMessage();
+    });
+  }
+
+  initAWS() {
+    AWS.config.region = 'ap-northeast-1'; // 你的 region
+    AWS.config.credentials = new AWS.CognitoIdentityCredentials({
+      IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' // 換成你的
+    });
+
+    this.lexRuntime = new AWS.LexRuntimeV2();
+    this.botId = 'XXXXXXXXXXXX';      // 你的 Bot ID
+    this.botAliasId = 'XXXXXXXXXXXX'; // 你的 Bot Alias ID
+    this.localeId = 'zh_TW';          // 語言代碼，例如 zh_TW, en_US
+    this.sessionId = Date.now().toString();
+  }
+
+  toggleChat() {
+    const isHidden = this.chatWindow.classList.contains('hidden');
+    this.chatWindow.classList.toggle('hidden');
+    if (!isHidden) {
+      this.chatNotification.style.display = 'none';
     }
-    
-    initElements() {
-        this.toggleBtn = document.getElementById('chatToggleBtn');
-        this.chatWindow = document.getElementById('chatWindow');
-        this.chatMessages = document.getElementById('chatMessages');
-        this.messageInput = document.getElementById('messageInput');
-        this.sendBtn = document.getElementById('sendBtn');
-        this.chatIcon = document.getElementById('chatIcon');
-        this.typingIndicator = document.getElementById('typingIndicator');
-        this.notificationBadge = document.getElementById('notificationBadge');
-        this.connectionStatus = document.getElementById('connectionStatus');
-    }
-    
-    bindEvents() {
-        this.toggleBtn.addEventListener('click', () => this.toggleChat());
-        this.sendBtn.addEventListener('click', () => this.handleSendMessage());
-        
-        this.messageInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                this.handleSendMessage();
-            }
+  }
+
+  async sendMessage() {
+    const text = this.chatInput.value.trim();
+    if (!text) return;
+
+    this.addMessage(text, 'user');
+    this.chatInput.value = '';
+    this.showTyping();
+
+    try {
+      const params = {
+        botId: this.botId,
+        botAliasId: this.botAliasId,
+        localeId: this.localeId,
+        sessionId: this.sessionId,
+        text: text
+      };
+
+      const response = await this.lexRuntime.recognizeText(params).promise();
+
+      if (response.messages && response.messages.length > 0) {
+        response.messages.forEach(msg => {
+          this.addMessage(msg.content, 'bot');
         });
-        
-        // 自動調整輸入框高度
-        this.messageInput.addEventListener('input', (e) => {
-            e.target.style.height = 'auto';
-            e.target.style.height = Math.min(e.target.scrollHeight, 80) + 'px';
-        });
-        
-        // 點擊外部關閉聊天窗口
-        document.addEventListener('click', (e) => {
-            if (this.isOpen && !this.chatWindow.contains(e.target) && !this.toggleBtn.contains(e.target)) {
-                this.toggleChat();
-            }
-        });
+      } else {
+        this.addMessage("抱歉，我沒有理解你的問題。", 'bot');
+      }
+    } catch (err) {
+      console.error('Lex V2 Error:', err);
+      this.addMessage("系統暫時無法使用，請稍後再試或直接聯繫我們。", 'bot');
+    } finally {
+      this.hideTyping();
     }
-    
-    setupAWS() {
-        // 檢查是否已設定機器人資訊
-        if (this.config.botName === 'YOUR_BOT_NAME') {
-            this.showConnectionStatus('請先設定 AWS Lex 機器人資訊', true);
-            return;
-        }
-        
-        try {
-            // 設定 AWS 
-            AWS.config.region = this.config.region;
-            AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-                IdentityPoolId: this.config.identityPoolId
-            });
-            
-            // 建立 Lex Runtime 服務
-            this.lexRuntime = new AWS.LexRuntime();
-            
-            this.showConnectionStatus('已連接到 Lex 機器人');
-            
-            // 3秒後隱藏狀態
-            setTimeout(() => {
-                this.connectionStatus.style.display = 'none';
-            }, 3000);
-            
-        } catch (error) {
-            console.error('AWS 設定錯誤:', error);
-            this.showConnectionStatus('連接失敗，請檢查設定', true);
-        }
-    }
-    
-    showConnectionStatus(message, isError = false) {
-        this.connectionStatus.textContent = message;
-        this.connectionStatus.classList.toggle('error', isError);
-    }
-    
-    toggleChat() {
-        this.isOpen = !this.isOpen;
-        
-        if (this.isOpen) {
-            this.chatWindow.classList.add('active');
-            this.toggleBtn.classList.add('active');
-            this.chatIcon.textContent = '✕';
-            this.messageInput.focus();
-            this.hideNotification();
-        } else {
-            this.chatWindow.classList.remove('active');
-            this.toggleBtn.classList.remove('active');
-            this.chatIcon.textContent = '🌱';
-        }
-    }
-    
-    async handleSendMessage() {
-        const message = this.messageInput.value.trim();
-        
-        if (!message || this.isTyping) return;
-        
-        // 顯示用戶訊息
-        this.addMessage(message, true);
-        this.clearInput();
-        
-        // 顯示打字指示器
-        this.showTyping();
-        
-        try {
-            let response;
-            
-            if (this.lexRuntime && this.config.botName !== 'YOUR_BOT_NAME') {
-                // 使用 AWS Lex
-                response = await this.sendToLex(message);
-            } else {
-                // 使用預設回覆（當未設定 Lex 時）
-                response = await this.getDefaultResponse(message);
-            }
-            
-            // 顯示機器人回覆
-            this.hideTyping();
-            this.addMessage(response);
-            
-        } catch (error) {
-            console.error('發送訊息錯誤:', error);
-            this.hideTyping();
-            this.addMessage('抱歉，目前服務暫時無法使用，請稍後再試或直接聯繫我們：contact@ecoshane.com', false, true);
-        }
-    }
-    
-    async sendToLex(message) {
-        const params = {
-            botName: this.config.botName,
-            botAlias: this.config.botAlias,
-            userId: this.sessionId,
-            inputText: message
-        };
-        
-        try {
-            const response = await this.lexRuntime.postText(params).promise();
-            return response.message || '抱歉，我沒有理解您的問題，請您換個方式詢問。';
-        } catch (error) {
-            console.error('Lex 錯誤:', error);
-            throw error;
-        }
-    }
-    
-    async getDefaultResponse(message) {
-        // 模擬網路延遲
-        await this.delay(1000 + Math.random() * 2000);
-        
-        const lowerMessage = message.toLowerCase();
-        
-        // 關鍵字匹配回覆
-        if (lowerMessage.includes('服務') || lowerMessage.includes('業務') || lowerMessage.includes('什麼')) {
-            return 'Ecoshane 提供全方位企業永續發展服務：\n\n🌍 碳足跡評估與減碳策略\n📊 ESG 報告書撰寫與諮詢\n🔄 永續供應鏈管理\n🌱 綠色轉型規劃\n\n您希望了解哪一項服務呢？';
-        }
-        
-        if (lowerMessage.includes('碳') || lowerMessage.includes('減碳') || lowerMessage.includes('溫室氣體')) {
-            return '我們的碳管理服務包括：\n\n📋 溫室氣體盤查\n🎯 碳中和路徑規劃\n🌳 碳抵換方案設計\n⚡ 節能減碳技術導入\n\n讓我們協助您制定科學化的減碳策略！';
-        }
-        
-        if (lowerMessage.includes('esg')) {
-            return 'ESG 是企業永續經營的關鍵指標：\n\n🌍 環境面 (Environmental)\n• 氣候變遷因應\n• 資源循環利用\n\n👥 社會面 (Social)\n• 員工權益保障\n• 社區共融發展\n\n🏛️ 治理面 (Governance)\n• 透明化資訊揭露\n• 風險管理機制\n\n需要 ESG 評估服務嗎？';
-        }
-        
-        if (lowerMessage.includes('聯繫') || lowerMessage.includes('聯絡') || lowerMessage.includes('電話') || lowerMessage.includes('email')) {
-            return '歡迎聯繫 Ecoshane 永續顧問團隊：\n\n📧 電子郵件：contact@ecoshane.com\n📞 電話：+886-9xx-xxx-xxx\n🏢 我們將安排專業顧問為您服務\n\n或者您可以繼續在這裡詢問相關問題！';
-        }
-        
-        if (lowerMessage.includes('價格') || lowerMessage.includes('費用') || lowerMessage.includes('報價')) {
-            return '我們的服務費用會根據企業規模和需求客製化報價：\n\n💼 中小企業方案\n🏢 大型企業方案\n📋 單項服務諮詢\n\n建議您聯繫我們安排免費初步諮詢，讓我們了解您的具體需求後提供詳細報價。';
-        }
-        
-        // 預設回覆
-        return '感謝您的提問！我是 Ecoshane 的智能助手，專門協助企業永續發展相關諮詢。\n\n您可以詢問我關於：\n• 永續發展服務\n• 碳管理與減碳\n• ESG 報告\n• 聯繫方式\n\n或者直接聯繫我們的專業團隊：contact@ecoshane.com';
-    }
-    
-    addMessage(text, isUser = false, isError = false) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${isUser ? 'user' : 'bot'}${isError ? ' error-message' : ''}`;
-        
-        // 處理換行
-        messageDiv.innerHTML = text.replace(/\n/g, '<br>');
-        
-        this.chatMessages.appendChild(messageDiv);
-        this.scrollToBottom();
-        
-        // 如果聊天窗口未開啟且是機器人訊息，顯示通知
-        if (!this.isOpen && !isUser) {
-            this.showNotification();
-        }
-    }
-    
-    showTyping() {
-        this.isTyping = true;
-        this.typingIndicator.classList.add('active');
-        this.sendBtn.disabled = true;
-        this.scrollToBottom();
-    }
-    
-    hideTyping() {
-        this.isTyping = false;
-        this.typingIndicator.classList.remove('active');
-        this.sendBtn.disabled = false;
-    }
-    
-    clearInput() {
-        this.messageInput.value = '';
-        this.messageInput.style.height = 'auto';
-    }
-    
-    scrollToBottom() {
-        setTimeout(() => {
-            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-        }, 100);
-    }
-    
-    showNotification() {
-        this.notificationBadge.classList.add('show');
-    }
-    
-    hideNotification() {
-        this.notificationBadge.classList.remove('show');
-    }
-    
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
+  }
+
+  addMessage(text, type) {
+    const message = document.createElement('div');
+    message.className = `message ${type}`;
+    const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    message.innerHTML = `<span>${text}</span><div class="time">${time}</div>`;
+    this.chatMessages.appendChild(message);
+    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+  }
+
+  showTyping() {
+    this.chatTyping.style.display = 'block';
+  }
+
+  hideTyping() {
+    this.chatTyping.style.display = 'none';
+  }
 }
 
-// 當頁面載入完成後初始化聊天機器人
 document.addEventListener('DOMContentLoaded', () => {
-    new EcoshaneLexChatbot();
+  new LexChatbot();
 });
-
-// 顯示歡迎通知
-setTimeout(() => {
-    const badge = document.getElementById('notificationBadge');
-    if (badge && !document.querySelector('.ecoshane-chatbot .chat-window.active')) {
-        badge.classList.add('show');
-    }
-}, 2000);
 </script>
+
 </body>
 </html>
