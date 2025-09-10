@@ -926,13 +926,13 @@ class LexChatbot {
   initAWS() {
     AWS.config.region = 'ap-northeast-1'; // 你的 region
     AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-      IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' // 換成你的
+      IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換成你的
     });
 
     this.lexRuntime = new AWS.LexRuntimeV2();
-    this.botId = 'XXXXXXXXXXXX';      // 你的 Bot ID
-    this.botAliasId = 'XXXXXXXXXXXX'; // 你的 Bot Alias ID
-    this.localeId = 'zh_TW';          // 語言代碼，例如 zh_TW, en_US
+    this.botId = 'example';      // 你的 Bot ID
+    this.botAliasId = 'TestBotAlias'; // 你的 Bot Alias ID
+    this.localeId = 'en_US';          // 語言代碼，例如 zh_TW, en_US
     this.sessionId = Date.now().toString();
   }
 
