@@ -1,544 +1,152 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ecoshane 永續顧問</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            background-color: #f8f9fa;
-        }
-
-        /* 平滑滾動 */
-        html {
-            scroll-behavior: smooth;
-        }
-
-        /* 導航欄 */
-        nav {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 1rem 0;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #2c5530;
-            text-decoration: none;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            position: relative;
-        }
-
-        .nav-links a:hover {
-            color: #2c5530;
-            background: rgba(44, 85, 48, 0.1);
-            transform: translateY(-2px);
-        }
-
-        /* 主要內容區域 */
-        .section {
-            padding: 100px 0 80px;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding-left: 2rem;
-            padding-right: 2rem;
-        }
-
-        /* 首頁區塊 */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            text-align: center;
-            padding: 150px 2rem 100px;
-            margin-top: 0;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease forwards;
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.3s forwards;
-        }
-
-        .cta-button {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 15px 30px;
-            border: 2px solid white;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: inline-block;
-            opacity: 0;
-            animation: fadeInUp 1s ease 0.6s forwards;
-        }
-
-        .cta-button:hover {
-            background: white;
-            color: #667eea;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 區塊標題 */
-        .section-title {
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 3rem;
-            color: #2c5530;
-            position: relative;
-        }
-
-        .section-title::after {
-            content: '';
-            display: block;
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            margin: 1rem auto;
-            border-radius: 2px;
-        }
-
-        /* 關於我們 */
-        .about-content {
-            text-align: left;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            margin-bottom: 4rem;
-            color: #666;
-        }
-        
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .team-card {
-            background: white;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            text-align: left; /* 將創辦人介紹卡片內的文字調整為靠左對齊 */
-        }
-
-        .team-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-
-        .team-card h3 {
-            color: #2c5530;
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-
-        .team-card p {
-            color: #666;
-            line-height: 1.6;
-        }
-
-        /* 服務項目 */
-        .services {
-            background: white;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-        }
-
-        .service-card {
-            background: linear-gradient(135deg, #a1d9b3 0%, #5d99c6 100%);
-            color: white;
-            padding: 2.5rem 2rem;
-            border-radius: 20px;
-            text-align: left;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .service-card h3 {
-            text-align: center;
-        }
-        
-        .service-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            transform: scale(0);
-            transition: transform 0.6s ease;
-        }
-
-        .service-card:hover::before {
-            transform: scale(1);
-        }
-
-        .service-card:hover {
-            transform: translateY(-10px) scale(1.05);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-        }
-
-        .service-card h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            position: relative;
-            z-index: 2;
-        }
-
-        .service-card p {
-            line-height: 1.6;
-            position: relative;
-            z-index: 2;
-        }
-
-        /* 聯絡我們 */
-        .contact {
-            background: #2c5530;
-            color: white;
-        }
-
-        .contact-content {
-            text-align: left;
-        }
-
-        .contact-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin: 3rem 0;
-            text-align: center;
-        }
-
-        .contact-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 2rem;
-            border-radius: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .contact-item:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-5px);
-        }
-
-        .contact-item h3 {
-            margin-bottom: 1rem;
-            font-size: 1.3rem;
-        }
-
-        .contact-item a {
-            color: white;
-            text-decoration: none;
-        }
-
-        .contact-item a:hover {
-            text-decoration: underline;
-        }
-
-        /* 動畫 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-
-            /* 調整導覽列容器的邊距，讓內容更置中 */
-            .nav-container {
-                padding: 0 1rem;
-            }
-
-            /* 調整手機版 logo 的字體大小，避免被切斷 */
-            .logo {
-                font-size: 1.5rem;
-            }
-
-            .hero h1 {
-                font-size: 2.2rem;
-                white-space: pre-wrap; /* 允許換行 */
-            }
-
-            .hero p {
-                font-size: 1.1rem;
-            }
-
-            .section {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-
-            .section-title {
-                font-size: 2rem;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-        }
-
-        /* 滾動指示器 */
-        .scroll-indicator {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            animation: bounce 2s infinite;
-        }
-
-        .scroll-indicator::after {
-            content: '↓';
-            font-size: 2rem;
-            color: rgba(255, 255, 255, 0.8);
-        }
-
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {
-                transform: translateX(-50%) translateY(0);
-            }
-            40% {
-                transform: translateX(-50%) translateY(-10px);
-            }
-            60% {
-                transform: translateX(-50%) translateY(-5px);
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- 導航欄 -->
-    <nav id="navbar">
-        <div class="nav-container">
-            <a href="#home" class="logo">Ecoshane 永續顧問</a>
-            <ul class="nav-links">
-                <li><a href="#home">首頁</a></li>
-                <li><a href="#about">關於我們</a></li>
-                <li><a href="#services">服務項目</a></li>
-                <li><a href="#contact">聯絡我們</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- 首頁 -->
-    <section id="home" class="hero">
-        <h1>Ecoshane<br>永續顧問</h1>
-        <p>致力於協助企業實現永續發展目標的專業顧問公司</p>
-        <a href="#about" class="cta-button">了解更多</a>
-        <div class="scroll-indicator"></div>
-    </section>
-
-    <!-- 關於我們 -->
-    <section id="about" class="section">
-        <h2 class="section-title">關於我們</h2>
-        <div class="about-content">
-            <p>Ecoshane 是一家致力於協助企業實現永續發展目標的專業顧問公司。我們相信，環境保護與商業成功可以並行，透過我們的專業知識與客製化服務，幫助客戶應對氣候變遷挑戰，提升企業形象與競爭力。</p>
-        </div>
-        
-        <div class="team-grid">
-            <div class="team-card">
-                <h3>創辦人 A</h3>
-                <p>這裡可以寫第一位創辦人的專業背景、經驗與個人理念。例如：擁有 15 年環境工程經驗，專精於碳盤查與綠色轉型策略。</p>
-            </div>
-            <div class="team-card">
-                <h3>創辦人 B</h3>
-                <p>這裡可以寫第二位創辦人的專業背景、經驗與個人理念。例如：ESG 報告專家，曾協助 50+ 企業建立永續發展策略。</p>
-            </div>
-            <div class="team-card">
-                <h3>創辦人 C</h3>
-                <p>這裡可以寫第三位創辦人的專業背景、經驗與個人理念。例如：氣候變遷顧問，專長於再生能源與節能技術評估。</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 服務項目 -->
-    <section id="services" class="section services">
-        <h2 class="section-title">服務項目</h2>
-        <div class="services-grid">
-            <div class="service-card">
-                <h3>碳盤查服務</h3>
-                <p>協助企業進行溫室氣體盤查，建立碳排放基線，制定減碳目標與行動計畫。</p>
-            </div>
-            <div class="service-card">
-                <h3>ESG 報告撰寫</h3>
-                <p>專業團隊協助企業撰寫符合國際標準的 ESG 報告，提升企業永續形象。</p>
-            </div>
-            <div class="service-card">
-                <h3>綠色轉型策略</h3>
-                <p>量身打造企業綠色轉型方案，包含再生能源導入、循環經濟模式設計等。</p>
-            </div>
-            <div class="service-card">
-                <h3>永續供應鏈</h3>
-                <p>協助企業建立永續供應鏈管理體系，降低環境影響，提升供應鏈韌性。</p>
-            </div>
-            <div class="service-card">
-                <h3>氣候風險評估</h3>
-                <p>分析氣候變遷對企業的實體與轉型風險，並規劃應對策略，增強企業韌性。</p>
-            </div>
-            <div class="service-card">
-                <h3>永續教育訓練</h3>
-                <p>針對不同層級員工設計客製化課程，從永續趨勢到實務操作，全面提升永續競爭力。</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- 聯絡我們 -->
-    <section id="contact" class="section contact">
-        <h2 class="section-title" style="color: white;">聯絡我們</h2>
-        <div class="contact-content">
-            <p>如果您對我們的服務有任何疑問或需求，歡迎隨時與我們聯繫。</p>
-            
-            <div class="contact-info">
-                <div class="contact-item">
-                    <h3>電子郵件</h3>
-                    <p><a href="mailto:ecoshane.esg@gmail.com">ecoshane.esg@gmail.com</a></p>
-                </div>
-                <div class="contact-item">
-                    <h3>聯絡電話</h3>
-                    <p>+886-9xx-xxx-xxx</p>
-                </div>
-                <div class="contact-item">
-                    <h3>公司地址</h3>
-                    <p>[公司地址]</p>
-                </div>
-            </div>
-            
-            <div style="margin-top: 3rem; padding: 2rem; background: rgba(255, 255, 255, 0.1); border-radius: 15px;">
-                <h3>智慧客服系統</h3>
-                <p>智慧客服系統正在建置中，敬請期待！</p>
-            </div>
-        </div>
-    </section>
-
-    <script>
-        // 平滑滾動增強效果
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    // 計算目標位置，考慮固定導航欄高度
-                    const navHeight = document.getElementById('navbar').offsetHeight;
-                    const targetPosition = target.offsetTop - navHeight;
-                    
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
-
-        // 導航欄背景透明度變化
-        window.addEventListener('scroll', function() {
-            const navbar = document.getElementById('navbar');
-            if (window.scrollY > 100) {
-                navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-            } else {
-                navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-            }
-        });
-
-        // 區塊進入視窗時的動畫效果
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // 監聽所有需要動畫的元素
-        document.querySelectorAll('.team-card, .service-card, .contact-item').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(30px)';
-            el.style.transition = 'all 0.6s ease';
-            observer.observe(el);
-        });
-    </script>
-
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
   <meta charset="UTF-8">
-  <title>Lex V2 聊天機器人</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ecoshane 永續顧問</title>
   <style>
-    /* --- 基本樣式 --- */
-    body {
-      font-family: Arial, sans-serif;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      background-color: #f8f9fa;
+    }
+
+    /* 平滑滾動 */
+    html {
+      scroll-behavior: smooth;
+    }
+
+    /* 導航欄 */
+    nav {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1rem 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      color: #2c5530;
+      text-decoration: none;
+    }
+
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      position: relative;
+    }
+
+    .nav-links a:hover {
+      color: #2c5530;
+      background: rgba(44, 85, 48, 0.1);
+      transform: translateY(-2px);
+    }
+
+    /* 主要內容區域 */
+    .section {
+      padding: 100px 0 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+
+    /* 首頁 */
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-align: center;
+      padding: 150px 2rem 100px;
+      margin-top: 0;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease forwards;
+    }
+
+    .hero p {
+      font-size: 1.3rem;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.3s forwards;
+    }
+
+    .cta-button {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 15px 30px;
+      border: 2px solid white;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      display: inline-block;
+      opacity: 0;
+      animation: fadeInUp 1s ease 0.6s forwards;
+    }
+
+    .cta-button:hover {
+      background: white;
+      color: #667eea;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 區塊標題 */
+    .section-title {
+      font-size: 2.5rem;
+      text-align: center;
+      margin-bottom: 3rem;
+      color: #2c5530;
+      position: relative;
+    }
+
+    .section-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      margin: 1rem auto;
+      border-radius: 2px;
+    }
+
+    /* Lex 聊天機器人 */
     #chat-toggle {
       position: fixed;
       bottom: 20px;
@@ -552,6 +160,7 @@
       font-size: 24px;
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+      z-index: 2000;
     }
     #chat-window {
       position: fixed;
@@ -562,17 +171,20 @@
       border: 1px solid #ccc;
       border-radius: 12px;
       background: white;
-      display: none;
       flex-direction: column;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
       opacity: 0;
       transform: translateY(20px);
       transition: all 0.3s ease-in-out;
+      visibility: hidden;
+      pointer-events: none;
+      z-index: 2000;
     }
     #chat-window.show {
-      display: flex;
       opacity: 1;
       transform: translateY(0);
+      visibility: visible;
+      pointer-events: auto;
     }
     #chat-messages {
       flex: 1;
@@ -622,6 +234,8 @@
   </style>
 </head>
 <body>
+  <!-- 導航欄、首頁、關於我們、服務項目、聯絡我們 ... (保持原樣) -->
+
   <!-- 聊天按鈕 -->
   <button id="chat-toggle">🌱</button>
 
@@ -645,7 +259,7 @@
         this.chatInput = document.getElementById('chat-input');
         this.chatSend = document.getElementById('chat-send');
 
-        this.hasWelcomed = false; // 確保只顯示一次歡迎語
+        this.hasWelcomed = false;
 
         this.chatToggle.addEventListener('click', () => this.toggleChat());
         this.chatSend.addEventListener('click', () => this.sendMessage());
@@ -657,26 +271,23 @@
       }
 
       initAWS() {
-        AWS.config.region = 'ap-northeast-1'; // 改成你 Lex bot 的區域
+        AWS.config.region = 'ap-northeast-1'; 
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' // 換成同區 Cognito 身份池
+          IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
         });
 
         this.lexRuntime = new AWS.LexRuntimeV2();
-        this.botId = '你的BotId';            // 從 AWS Console 複製
-        this.botAliasId = '你的BotAliasId';  // 從 AWS Console 複製
-        this.localeId = 'zh_TW';             // 如果是中文 bot
+        this.botId = '你的BotId';            
+        this.botAliasId = '你的BotAliasId';  
+        this.localeId = 'zh_TW';             
         this.sessionId = Date.now().toString();
       }
 
       toggleChat() {
         if (this.chatWindow.classList.contains('show')) {
           this.chatWindow.classList.remove('show');
-          setTimeout(() => this.chatWindow.style.display = 'none', 300);
         } else {
-          this.chatWindow.style.display = 'flex';
-          setTimeout(() => this.chatWindow.classList.add('show'), 10);
-
+          this.chatWindow.classList.add('show');
           if (!this.hasWelcomed) {
             this.addMessage("您好！我是 Ecoshane 永續客服 🌱 有什麼可以幫您？", 'bot');
             this.hasWelcomed = true;
@@ -749,10 +360,5 @@
       new LexChatbot();
     });
   </script>
-</body>
-</html>
-
-
-
 </body>
 </html>
