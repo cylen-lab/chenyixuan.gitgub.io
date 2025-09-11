@@ -646,7 +646,7 @@
       }
 
       initAWS() {
-        AWS.config.region = 'ap-east-1'; // 你的 region
+        AWS.config.region = 'us-east-1'; // 你的 region
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
           IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換掉這個
         });
