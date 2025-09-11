@@ -528,6 +528,7 @@
             observer.observe(el);
         });
     </script>
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -564,6 +565,14 @@
       display: none;
       flex-direction: column;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s ease-in-out;
+    }
+    #chat-window.show {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
     }
     #chat-messages {
       flex: 1;
@@ -636,6 +645,8 @@
         this.chatInput = document.getElementById('chat-input');
         this.chatSend = document.getElementById('chat-send');
 
+        this.hasWelcomed = false; // 確保只顯示一次歡迎語
+
         this.chatToggle.addEventListener('click', () => this.toggleChat());
         this.chatSend.addEventListener('click', () => this.sendMessage());
         this.chatInput.addEventListener('keypress', (e) => {
@@ -646,21 +657,31 @@
       }
 
       initAWS() {
-        AWS.config.region = 'us-east-1'; // 你的 region
+        AWS.config.region = 'ap-northeast-1'; // 改成你 Lex bot 的區域
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換掉這個
+          IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' // 換成同區 Cognito 身份池
         });
 
         this.lexRuntime = new AWS.LexRuntimeV2();
-        this.botId = 'BLNBE1X3XG';      // 換掉這個
-        this.botAliasId = 'TSTALIASID'; // 換掉這個
-        this.localeId = 'en_US';          // 語言
+        this.botId = '你的BotId';            // 從 AWS Console 複製
+        this.botAliasId = '你的BotAliasId';  // 從 AWS Console 複製
+        this.localeId = 'zh_TW';             // 如果是中文 bot
         this.sessionId = Date.now().toString();
       }
 
       toggleChat() {
-        this.chatWindow.style.display =
-          this.chatWindow.style.display === 'none' ? 'flex' : 'none';
+        if (this.chatWindow.classList.contains('show')) {
+          this.chatWindow.classList.remove('show');
+          setTimeout(() => this.chatWindow.style.display = 'none', 300);
+        } else {
+          this.chatWindow.style.display = 'flex';
+          setTimeout(() => this.chatWindow.classList.add('show'), 10);
+
+          if (!this.hasWelcomed) {
+            this.addMessage("您好！我是 Ecoshane 永續客服 🌱 有什麼可以幫您？", 'bot');
+            this.hasWelcomed = true;
+          }
+        }
       }
 
       async sendMessage() {
@@ -698,8 +719,28 @@
         const message = document.createElement('div');
         message.className = `message ${type}`;
         const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-        message.innerHTML = `<div>${text}</div><div class="time">${time}</div>`;
-        this.chatMessages.appendChild(message);
+
+        if (type === 'bot') {
+          let i = 0;
+          const contentDiv = document.createElement('div');
+          const timeDiv = document.createElement('div');
+          timeDiv.className = "time";
+          timeDiv.innerText = time;
+          message.appendChild(contentDiv);
+          message.appendChild(timeDiv);
+          this.chatMessages.appendChild(message);
+
+          const typing = setInterval(() => {
+            contentDiv.innerText = text.substring(0, i);
+            i++;
+            if (i > text.length) clearInterval(typing);
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+          }, 40);
+        } else {
+          message.innerHTML = `<div>${text}</div><div class="time">${time}</div>`;
+          this.chatMessages.appendChild(message);
+        }
+
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
       }
     }
@@ -710,6 +751,7 @@
   </script>
 </body>
 </html>
+
 
 
 </body>
