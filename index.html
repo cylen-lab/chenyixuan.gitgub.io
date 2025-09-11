@@ -653,15 +653,15 @@
       }
 
       initAWS() {
-        AWS.config.region = 'ap-northeast-1'; // 改成你 Lex bot 的區域
+        AWS.config.region = 'us-east-1'; // 改成你 Lex bot 的區域
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: 'ap-northeast-1:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' // 換成同區 Cognito 身份池
+          IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換成同區 Cognito 身份池
         });
 
         this.lexRuntime = new AWS.LexRuntimeV2();
-        this.botId = '你的BotId';            // 從 AWS Console 複製
-        this.botAliasId = '你的BotAliasId';  // 從 AWS Console 複製
-        this.localeId = 'zh_TW';             // 如果是中文 bot
+        this.botId = 'BLNBE1X3XG';            // 從 AWS Console 複製
+        this.botAliasId = 'TSTALIASID';  // 從 AWS Console 複製
+        this.localeId = 'en_US';             // 如果是中文 bot
         this.sessionId = Date.now().toString();
       }
 
