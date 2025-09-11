@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
@@ -426,8 +427,8 @@
                 <p>協助企業進行溫室氣體盤查，建立碳排放基線，制定減碳目標與行動計畫。</p>
             </div>
             <div class="service-card">
-                <h3>永續報告書撰寫</h3>
-                <p>專業團隊協助企業撰寫符合國際標準的永續報告書，提升企業永續形象。</p>
+                <h3>ESG 報告撰寫</h3>
+                <p>專業團隊協助企業撰寫符合國際標準的 ESG 報告，提升企業永續形象。</p>
             </div>
             <div class="service-card">
                 <h3>綠色轉型策略</h3>
@@ -473,7 +474,6 @@
                 <h3>智慧客服系統</h3>
                 <p>智慧客服系統正在建置中，敬請期待！</p>
             </div>
-
         </div>
     </section>
 
@@ -529,7 +529,11 @@
             observer.observe(el);
         });
     </script>
-   <title>Lex V2 聊天機器人</title>
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>Lex V2 聊天機器人</title>
   <style>
     /* --- 基本樣式 --- */
     body {
@@ -561,14 +565,6 @@
       display: none;
       flex-direction: column;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(20px);
-      transition: all 0.3s ease-in-out;
-    }
-    #chat-window.show {
-      display: flex;
-      opacity: 1;
-      transform: translateY(0);
     }
     #chat-messages {
       flex: 1;
@@ -641,8 +637,6 @@
         this.chatInput = document.getElementById('chat-input');
         this.chatSend = document.getElementById('chat-send');
 
-        this.hasWelcomed = false; // 確保只顯示一次歡迎語
-
         this.chatToggle.addEventListener('click', () => this.toggleChat());
         this.chatSend.addEventListener('click', () => this.sendMessage());
         this.chatInput.addEventListener('keypress', (e) => {
@@ -653,42 +647,21 @@
       }
 
       initAWS() {
-        AWS.config.region = 'us-east-1'; // 改成你 Lex bot 的區域
+        AWS.config.region = 'ap-east-1'; // 你的 region
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
-          IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換成同區 Cognito 身份池
+          IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換掉這個
         });
 
         this.lexRuntime = new AWS.LexRuntimeV2();
-        this.botId = 'BLNBE1X3XG';            // 從 AWS Console 複製
-        this.botAliasId = 'TSTALIASID';  // 從 AWS Console 複製
-        this.localeId = 'en_US';             // 如果是中文 bot
+        this.botId = 'example';      // 換掉這個
+        this.botAliasId = 'TestBotAlias'; // 換掉這個
+        this.localeId = 'en_US';          // 語言
         this.sessionId = Date.now().toString();
       }
 
       toggleChat() {
-        if (this.chatWindow.classList.contains('show')) {
-          this.chatWindow.classList.remove('show');
-          setTimeout(() => this.chatWindow.style.display = 'none', 300);
-        } else {
-          this.chatWindow.style.display = 'flex';
-          setTimeout(() => this.chatWindow.classList.add('show'), 10);
-
-          if (!this.hasWelcomed) {
-            this.addMessage("您好！歡迎使用我們的智能客服系統！🎉
-
-我可以協助您了解：
-• 服務費用和收費方式
-• 服務範圍和支援地區
-• 聯絡方式和營業時間
-• 成功案例分享
-• 預約諮詢服務
-• 公司資訊介紹
-• 各項服務內容
-
-請問有什麼可以幫助您的嗎？", 'bot');
-            this.hasWelcomed = true;
-          }
-        }
+        this.chatWindow.style.display =
+          this.chatWindow.style.display === 'none' ? 'flex' : 'none';
       }
 
       async sendMessage() {
@@ -726,28 +699,8 @@
         const message = document.createElement('div');
         message.className = `message ${type}`;
         const time = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
-
-        if (type === 'bot') {
-          let i = 0;
-          const contentDiv = document.createElement('div');
-          const timeDiv = document.createElement('div');
-          timeDiv.className = "time";
-          timeDiv.innerText = time;
-          message.appendChild(contentDiv);
-          message.appendChild(timeDiv);
-          this.chatMessages.appendChild(message);
-
-          const typing = setInterval(() => {
-            contentDiv.innerText = text.substring(0, i);
-            i++;
-            if (i > text.length) clearInterval(typing);
-            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
-          }, 40);
-        } else {
-          message.innerHTML = `<div>${text}</div><div class="time">${time}</div>`;
-          this.chatMessages.appendChild(message);
-        }
-
+        message.innerHTML = `<div>${text}</div><div class="time">${time}</div>`;
+        this.chatMessages.appendChild(message);
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
       }
     }
@@ -756,5 +709,9 @@
       new LexChatbot();
     });
   </script>
+</body>
+</html>
+
+
 </body>
 </html>
