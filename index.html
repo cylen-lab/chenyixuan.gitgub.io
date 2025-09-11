@@ -759,7 +759,7 @@
       }
 
       initAWS() {
-        AWS.config.region = 'ap-east-1'; // 改成你 Lex bot 的區域
+        AWS.config.region = 'us-east-1'; // 改成你 Lex bot 的區域
         AWS.config.credentials = new AWS.CognitoIdentityCredentials({
           IdentityPoolId: 'us-east-1:05eec0e5-0c38-45a1-8a36-729ffb25c03d' // 換成同區 Cognito 身份池
         });
